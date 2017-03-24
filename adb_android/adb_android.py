@@ -1,7 +1,10 @@
 import tempfile
+import logging
 from subprocess import check_output, CalledProcessError, call
 
 import var as v
+
+logger = logging.getLogger(__name__)
 
 def _isDeviceAvailable():
     """
@@ -34,7 +37,7 @@ def bugreport(dest_file="default.log"):
     try:
         dest_file_handler = open(dest_file, "w")
     except IOError:
-        print "IOError: Failed to create a log file"
+        logger.error("IOError: Failed to create a log file")
     
     # We have to check if device is available or not before executing this command
     # as adb bugreport will wait-for-device infinitely and does not come out of 
@@ -188,7 +191,7 @@ def _exec_command(adb_cmd):
         if e != '':  # avoid items with empty string...
             final_adb_cmd.append(e)  # ... so that final command doesn't
             # contain extra spaces
-    print('\n*** Executing ' + ' '.join(adb_cmd) + ' ' + 'command')
+    logger.debug('\n*** Executing ' + ' '.join(adb_cmd) + ' ' + 'command')
 
     try:
         output = check_output(final_adb_cmd, stderr=t)
@@ -197,7 +200,7 @@ def _exec_command(adb_cmd):
         result = e.returncode, t.read()
     else:
         result = 0, output
-        print('\n' + result[1])
+        logger.debug('\n' + result[1])
 
     return result
 
@@ -216,7 +219,7 @@ def _exec_command_to_file(adb_cmd, dest_file_handler):
         if e != '':  # avoid items with empty string...
             final_adb_cmd.append(e)  # ... so that final command doesn't
             # contain extra spaces
-    print('\n*** Executing ' + ' '.join(adb_cmd) + ' ' + 'command')
+    logger.debug('\n*** Executing ' + ' '.join(adb_cmd) + ' ' + 'command')
 
     try:
         output = call(final_adb_cmd, stdout=dest_file_handler, stderr=t)
